@@ -50,6 +50,21 @@ def main():
 	posts = [dict(title=row[0], post=row[1]) for row in cur.fetchall()]
 	return render_template("main.html", posts=posts)
 
+@app.route("/add", methods=["POST"])
+def add():
+	title = request.form['title']
+	post = request.form['post']
+	if not post or not title:
+		flash('All fields are required. Please try again')
+		return redirect(url_for('main'))
+	else:
+		g.db = connect_db()
+		g.db.execute("INSERT into posts VALUES(?, ?)", (title, post))
+		g.db.commit()
+		g.db.close()
+		flash('New entry was successfully posted!')
+		return redirect(url_for('main'))
+
 @app.route("/logout")
 def logout():
 	session.pop('logged_in', None)
